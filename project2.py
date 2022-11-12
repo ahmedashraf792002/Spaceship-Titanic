@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix,accuracy_score,f1_score,precision_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 import seaborn as sns
+import matplotlib.pyplot as plt
 train_data=pd.read_csv('train.csv')
 test_data=pd.read_csv('test.csv')
 print(train_data.shape)
@@ -22,7 +23,19 @@ labelencoder=LabelEncoder()
 for li in list:
     x_train[li]=labelencoder.fit_transform(x_train[li])
     test_data[li]=labelencoder.fit_transform(test_data[li])
-y_train['Transported']=labelencoder.fit_transform(y_train['Transported'])    
+y_train['Transported']=labelencoder.fit_transform(y_train['Transported'])  
+print(train_data.describe()) 
+print(train_data.corr())
+########################
+li=train_data.columns
+print(li[-1])
+y_train=np.array(y_train)
+x_train=np.array(x_train)
+for x in range(1,12):
+        plt.figure()
+        plt.scatter(x_train[:,x],y_train[:,0],label=li[x]+'\n'+li[-1])
+        plt.legend()
+        plt.title(f'corr between {li[x]} and {li[-1]}')
 impute=SimpleImputer(missing_values=np.nan,strategy='mean')
 x_train=impute.fit_transform(x_train)
 test_data=impute.fit_transform(test_data)
@@ -36,6 +49,7 @@ randomclassifier.fit(x_train2,y_train2)
 print("RandomForestClassifier train score = ",randomclassifier.score(x_train2,y_train2))
 print("RandomForestClassifier test score = ",randomclassifier.score(x_test,y_test))
 y_pred=randomclassifier.predict(x_test)
+plt.figure()
 confusionmatrix=confusion_matrix(y_test, y_pred)
 sns.heatmap(confusionmatrix,center=True)
 test=randomclassifier.predict(test_data[:,1:])
